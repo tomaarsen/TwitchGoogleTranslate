@@ -49,7 +49,7 @@ Install these using `pip install ...`
 
 Install this using `pip install git+https://github.com/CubieDev/TwitchWebsocket.git`
 
-This last library is my own TwitchWebsocket wrapper, which makes making a Twitch chat bot a lot easier.
+This last library is my own [TwitchWebsocket](https://github.com/CubieDev/TwitchWebsocket) wrapper, which makes making a Twitch chat bot a lot easier.
 This repository can be seen as an implementation using this wrapper.
 
 ---
