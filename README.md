@@ -85,3 +85,7 @@ This bot is controlled by a settings.txt file, which looks like:
 I got my real OAuth token from https://twitchapps.com/tmi/.
 
 ---
+
+# Other Twitch Bots
+
+* [TwitchPickUser](https://github.com/CubieDev/TwitchPickUser)
