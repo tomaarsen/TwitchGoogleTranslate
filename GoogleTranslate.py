@@ -21,6 +21,7 @@ class Settings:
                                 data["Nickname"],
                                 data["Authentication"],
                                 data["UseProxies"],
+                                data["MaxMessageLength"],
                                 data["Cooldown"],
                                 data["AmountOfTranslations"]
                                 )
@@ -37,6 +38,7 @@ class Settings:
                                     "Nickname": "<name>",
                                     "Authentication": "oauth:<auth>",
                                     "UseProxies": False,
+                                    "MaxMessageLength": 150,
                                     "Cooldown": 10,
                                     "AmountOfTranslations": 3
                                 }
@@ -61,6 +63,7 @@ class GoogleTranslate:
         self.nick = None
         self.auth = None
         self.use_proxies = None
+        self.message_length = None
         
         # For retries 
         self.error_counter = 0
@@ -217,13 +220,14 @@ class GoogleTranslate:
         self.get_proxies()
         self.update_translator()
 
-    def setSettings(self, host, port, chan, nick, auth, use_proxies, cooldown, amount):
+    def setSettings(self, host, port, chan, nick, auth, use_proxies, message_length, cooldown, amount):
         self.host = host
         self.port = port
         self.chan = chan
         self.nick = nick
         self.auth = auth
         self.use_proxies = use_proxies
+        self.message_length = message_length
         self.cooldown = cooldown
         self.amount = amount
 
@@ -236,8 +240,7 @@ class GoogleTranslate:
             pprint("Start", m.params + "\n")
 
         if m.type == "PRIVMSG":
-            print(m)
-            if m.message.startswith("!translate ") and len(m.message) < 150 and self.prev_message_t + self.cooldown < time.time():
+            if m.message.startswith("!translate ") and len(m.message) < self.message_length and self.prev_message_t + self.cooldown < time.time():
                 # Start is the initial language, which we do not know in advance
                 start = str()
                 self.prev_message_t = time.time()

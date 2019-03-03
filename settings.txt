@@ -5,6 +5,7 @@
     "Nickname": "<name>",
     "Authentication": "oauth:<auth>",
     "UseProxies": false,
+    "MaxMessageLength": 150,
     "Cooldown": 10,
     "AmountOfTranslations": 3
 }
