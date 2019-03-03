@@ -73,7 +73,7 @@ This bot is controlled by a settings.txt file, which looks like:
 | -------------------- | ----------- | ----------- |
 | Host                 | The URL that will be used. Do not change.                         | "irc.chat.twitch.tv" |
 | Port                 | The Port that will be used. Do not change.                        | 6667 |
-| Channel              | The channel that will be connected to.                            | "#CubieDev" |
+| Channel              | The Channel that will be connected to.                            | "#CubieDev" |
 | Nickname             | The Username of the bot account.                                  | "CubieB0T" |
 | Authentication       | The OAuth token for the bot account.                              | "oauth:pivogip8ybletucqdz4pkhag6itbax" |
 | UseProxies           | Whether Proxies should be used                                    | False (recommended) |
