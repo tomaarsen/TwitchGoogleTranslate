@@ -15,7 +15,7 @@ class Settings:
             with open("settings.txt", "r") as f:
                 settings = f.read()
                 data = json.loads(settings)
-                bot.setSettings(data["Host"],
+                bot.set_settings(data["Host"],
                                 data["Port"],
                                 data["Channel"],
                                 data["Nickname"],
@@ -23,7 +23,8 @@ class Settings:
                                 data["UseProxies"],
                                 data["MaxMessageLength"],
                                 data["Cooldown"],
-                                data["AmountOfTranslations"]
+                                data["AmountOfTranslations"],
+                                data["Languages"]
                                 )
         except ValueError:
             raise ValueError("Error in settings file.")
@@ -40,10 +41,30 @@ class Settings:
                                     "UseProxies": False,
                                     "MaxMessageLength": 150,
                                     "Cooldown": 10,
-                                    "AmountOfTranslations": 3
+                                    "AmountOfTranslations": 3,
+                                    "Languages": ["Hawaiian"]
                                 }
                 f.write(json.dumps(standard_dict, indent=4, separators=(",", ": ")))
                 raise ValueError("Please fix your settings.txt file that was just generated.")
+        
+        try:
+            # Try to load the file using json.
+            # And pass the data to the GoogleTranslate class instance if this succeeds.
+            with open("languages.txt", "r") as f:
+                languages = f.read()
+                data = json.loads(languages)
+                bot.set_languages(data)
+        except ValueError:
+            raise ValueError("Error in languages file.")
+        except FileNotFoundError:
+            # If the file is missing, create a standardised settings.txt file
+            # With all parameters required.
+            with open("languages.txt", "w") as f:
+                standard_dict = {
+                                    "en": "english"
+                                }
+                f.write(json.dumps(standard_dict, indent=4, separators=(",", ": ")))
+                raise ValueError("Please add to your languages.txt file that was just generated.")
 
 def pprint(code, msg=None):
     print("{:<20}: {}".format("[" + code + "]", msg if msg != None else ""))
@@ -64,6 +85,7 @@ class GoogleTranslate:
         self.auth = None
         self.use_proxies = None
         self.message_length = None
+        self.raw_languages = None
         
         # For retries 
         self.error_counter = 0
@@ -74,7 +96,11 @@ class GoogleTranslate:
 
         # Amount of languages that will be translated to, ignoring English as the final language and the initial language. An amount of 3 would be:
         # Dutch -> Khmer -> Latin -> Xhosa -> English
+        # This amount is only used when the "Languages" is empty
         self.amount = None
+
+        # Variable for holding a potential chain of fixed languages to chain through
+        self.fixed = None
 
         # Standard URL
         self.url = "translate.google.com"
@@ -84,116 +110,10 @@ class GoogleTranslate:
             self.url
         ])
 
-        # All languages which can be randomly chosen by the bot.
-        self.raw_languages = {
-            "af": "afrikaans",
-            "sq": "albanian",
-            "am": "amharic",
-            "ar": "arabic",
-            "hy": "armenian",
-            "az": "azerbaijani",
-            "eu": "basque",
-            "be": "belarusian",
-            "bn": "bengali",
-            "bs": "bosnian",
-            "bg": "bulgarian",
-            "ca": "catalan",
-            "ceb": "cebuano",
-            "ny": "chichewa",
-            "zh-cn": "chinese (simplified)",
-            "zh-tw": "chinese (traditional)",
-            "co": "corsican",
-            "hr": "croatian",
-            "cs": "czech",
-            "da": "danish",
-            "nl": "dutch",
-            "en": "english",
-            "eo": "esperanto",
-            "et": "estonian",
-            "tl": "filipino",
-            "fi": "finnish",
-            "fr": "french",
-            "fy": "frisian",
-            "gl": "galician",
-            "ka": "georgian",
-            "de": "german",
-            "el": "greek",
-            "gu": "gujarati",
-            "ht": "haitian creole",
-            "ha": "hausa",
-            "haw": "hawaiian",
-            "iw": "hebrew",
-            "hi": "hindi",
-            "hmn": "hmong",
-            "hu": "hungarian",
-            "is": "icelandic",
-            "ig": "igbo",
-            "id": "indonesian",
-            "ga": "irish",
-            "it": "italian",
-            "ja": "japanese",
-            "jw": "javanese",
-            "kn": "kannada",
-            "kk": "kazakh",
-            "km": "khmer",
-            "ko": "korean",
-            "ku": "kurdish (kurmanji)",
-            "ky": "kyrgyz",
-            "lo": "lao",
-            "la": "latin",
-            "lv": "latvian",
-            "lt": "lithuanian",
-            "lb": "luxembourgish",
-            "mk": "macedonian",
-            "mg": "malagasy",
-            "ms": "malay",
-            "ml": "malayalam",
-            "mt": "maltese",
-            "mi": "maori",
-            "mr": "marathi",
-            "mn": "mongolian",
-            "my": "myanmar (burmese)",
-            "ne": "nepali",
-            "no": "norwegian",
-            "ps": "pashto",
-            "fa": "persian",
-            "pl": "polish",
-            "pt": "portuguese",
-            "pa": "punjabi",
-            "ro": "romanian",
-            "ru": "russian",
-            "sm": "samoan",
-            "gd": "scots gaelic",
-            "sr": "serbian",
-            "st": "sesotho",
-            "sn": "shona",
-            "sd": "sindhi",
-            "si": "sinhala",
-            "sk": "slovak",
-            "sl": "slovenian",
-            "so": "somali",
-            "es": "spanish",
-            "su": "sundanese",
-            "sw": "swahili",
-            "sv": "swedish",
-            "tg": "tajik",
-            "ta": "tamil",
-            "te": "telugu",
-            "th": "thai",
-            "tr": "turkish",
-            "uk": "ukrainian",
-            "ur": "urdu",
-            "uz": "uzbek",
-            "vi": "vietnamese",
-            "cy": "welsh",
-            "xh": "xhosa",
-            "yi": "yiddish",
-            "yo": "yoruba",
-            "zu": "zulu",
-            "fil": "Filipino",
-            "he": "Hebrew"
-        }
+        # Fill previously initialised variables with data from the settings.txt file
+        Settings(self)
 
+        # All languages which can be randomly chosen by the bot.
         # Remove English so we can put English as the first index, 
         # without having a duplicate
         # Note, add more languages to this list to prevent them from being randomly picked by the bot.
@@ -204,9 +124,20 @@ class GoogleTranslate:
         for key in self.raw_languages:
             if key not in removed_languages:
                 self.languages.append(Languages(self.raw_languages[key].capitalize(), key))
-
-        # Fill previously initialised variables with data from the settings.txt file
-        Settings(self)
+        
+        # Set fixed to lower, to prevent case mismatches
+        self.fixed = [l.lower() for l in self.fixed]
+        # Set fixed languages which are used in a chain when FixedLanguages=true in the settings.
+        self.fixed_languages = []
+        for lan in self.languages:
+            if lan.name.lower() in self.fixed or lan.id in self.fixed:
+                self.fixed_languages.append(lan)
+        
+        if len(self.fixed) != len(self.fixed_languages):
+            print("Warning, not all languages entered in \"Languages\" were recognised.")
+        
+        self.fixed_languages += [self.languages[0]]
+        self.get_fixed_languages = lambda: self.fixed_languages 
 
         # Standard setup for the TwitchWebsocket.
         self.ws = TwitchWebsocket(self.host, self.port, self.message_handler, live=True)
@@ -220,7 +151,7 @@ class GoogleTranslate:
         self.get_proxies()
         self.update_translator()
 
-    def setSettings(self, host, port, chan, nick, auth, use_proxies, message_length, cooldown, amount):
+    def set_settings(self, host, port, chan, nick, auth, use_proxies, message_length, cooldown, amount, fixed):
         self.host = host
         self.port = port
         self.chan = chan
@@ -230,9 +161,13 @@ class GoogleTranslate:
         self.message_length = message_length
         self.cooldown = cooldown
         self.amount = amount
+        self.fixed = fixed
 
         if self.use_proxies:
             self.proxy_init()
+
+    def set_languages(self, data):
+        self.raw_languages = data
 
     def message_handler(self, m):
 
@@ -241,62 +176,74 @@ class GoogleTranslate:
 
         if m.type == "PRIVMSG":
             if m.message.startswith("!translate ") and len(m.message) < self.message_length and self.prev_message_t + self.cooldown < time.time():
-                # Start is the initial language, which we do not know in advance
-                start = str()
-                self.prev_message_t = time.time()
-
-                # Get list of languages to translate through
-                languages = self.get_languages()
-
                 # Set initial message as m.message
                 message = " ".join(m.message.split(" ")[1:])
-
                 pprint("Initial", message)
-                
-                # Set starting message as "auto"
-                s = "auto"
-                for l in languages:
-                    d = l.id
-                    result = self.translate(message, s, d)
-                    
-                    # Set the initial language
-                    try:
-                        if s == "auto":
-                            start = self.raw_languages[result.src].capitalize()
-                    except:
-                        start = "English"
-                    
-                    # If a translation failed, we will try again 20 times before giving up.
-                    if result is None:
-                        if self.use_proxies:
-                            # Update the proxy used when the message breaks.
-                            self.update_translator()
-                        print("Error Occurred. Result is None")
-                        #print("Error Counter:", self.error_counter)
 
-                        if self.error_counter < 20:
-                            #print("Restarting Message Handler")
-                            # Set prev_message to -1 to make sure the cooldown doesn't prevent it from working.
-                            self.prev_message_t = -1
-                            self.message_handler(m)
-                        self.error_counter += 1
-                        return
+                # Update for cooldown
+                self.prev_message_t = time.time()
 
-                    self.error_counter = 0
-                    message = result.text
-                    pprint(f"To {l.name}", message)
-                    
-                    # Update source for next iteration
-                    s = d
+                # Get language path and output message
+                path, message = self.translate_message(message)
+                if len(message) == 0:
+                    return
+                pprint("Path", path + "\n")
 
-                pprint("Path", start + " -> " + " -> ".join([l.name for l in languages]))
-                print("")
                 self.ws.send_message(f"@{m.tags['display-name']}: {message}")
 
             if m.message.startswith("!help"):
-                self.ws.send_message("The input sentence is taken and translated in a chain, eg: English -> " + " -> ".join([l.name for l in self.get_languages()]))
+                self.ws.send_message("The input sentence is taken and translated in a chain, eg: Any Language -> " + " -> ".join([l.name for l in (self.get_fixed_languages() if len(self.fixed_languages) > 0 else self.get_random_languages())]))
 
-    def get_languages(self):
+    def translate_message(self, message_in):
+        # Start is the initial language, which we do not know in advance
+        start = str()
+
+        # Create copy so input message is still available
+        message = message_in
+
+        # Get list of languages to translate through
+        if len(self.fixed_languages) > 0:
+            path = self.get_fixed_languages()
+        else:
+            path = self.get_random_languages()
+        
+        # Set starting message as "auto"
+        s = "auto"
+        for l in path:
+            d = l.id
+            result = self.translate(message, s, d)
+            
+            # Set the initial language
+            try:
+                if s == "auto":
+                    start = self.raw_languages[result.src].capitalize()
+            except:
+                start = "English"
+            
+            # If a translation failed, we will try again 20 times before giving up.
+            if result is None:
+                if self.use_proxies:
+                    # Update the proxy used when the message breaks.
+                    self.update_translator()
+                print("Error Occurred. Result is None")
+
+                if self.error_counter < 20:
+                    # Set prev_message to -1 to make sure the cooldown doesn't prevent it from working.
+                    self.prev_message_t = -1
+                    self.error_counter += 1
+                    return self.translate_message(message_in)
+                return ("", "")
+
+            self.error_counter = 0
+            message = result.text
+            pprint(f"To {l.name}", message)
+            
+            # Update source for next iteration
+            s = d
+
+        return (start + " -> " + " -> ".join([l.name for l in path]), message)
+
+    def get_random_languages(self):
         # Randoms from 1 onwards to prevent English from being picked
         languages = [self.languages[random.randint(1, len(self.languages) - 1)] for i in range(self.amount)]
         
@@ -310,14 +257,6 @@ class GoogleTranslate:
             return result
         except Exception as e:
             pprint("Error T", e)
-    
-    # Not used:t
-    def detect(self, message):
-        try:
-            result = self.t.detect(message)
-            return result.lang if result.lang != "trgu" else "en"
-        except Exception as e:
-            pprint(f"[Error D]", e)
     
     def get_proxies(self):
         proxies_req = Request("https://www.sslproxies.org/")
