@@ -92,6 +92,7 @@ I got my real OAuth token from https://twitchapps.com/tmi/.
 
 # Other Twitch Bots
 
+* [TwitchMarkovChain](https://github.com/CubieDev/TwitchMarkovChain)
 * [TwitchCubieBot](https://github.com/CubieDev/TwitchCubieBot)
 * [TwitchPickUser](https://github.com/CubieDev/TwitchPickUser)
 * [TwitchSaveMessages](https://github.com/CubieDev/TwitchSaveMessages)
