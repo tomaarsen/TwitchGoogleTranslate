@@ -148,7 +148,8 @@ class GoogleTranslate:
                                   callback=self.message_handler,
                                   capability="tags",
                                   live=True)
-
+        self.ws.start_bot()
+        
     def proxy_init(self):
         self.ua = UserAgent()
         self.proxies = set()
