@@ -140,10 +140,14 @@ class GoogleTranslate:
         self.get_fixed_languages = lambda: self.fixed_languages 
 
         # Standard setup for the TwitchWebsocket.
-        self.ws = TwitchWebsocket(self.host, self.port, self.message_handler, live=True)
-        self.ws.login(self.nick, self.auth)
-        self.ws.join_channel(self.chan)
-        self.ws.add_capability("tags")
+        self.ws = TwitchWebsocket(host=self.host, 
+                                  port=self.port,
+                                  chan=self.chan,
+                                  nick=self.nick,
+                                  auth=self.auth,
+                                  callback=self.message_handler,
+                                  capability="tags",
+                                  live=True)
 
     def proxy_init(self):
         self.ua = UserAgent()
