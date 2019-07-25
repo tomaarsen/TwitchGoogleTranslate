@@ -1,0 +1,5 @@
+git+git://github.com/CubieDev/TwitchWebsocket@master#egg=TwitchWebsocket
+requests==2.22.0
+googletrans==2.4.0
+bs4==0.0.1
+fake_useragent==0.1.11
