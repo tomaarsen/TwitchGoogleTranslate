@@ -35,22 +35,6 @@ The console when sending the message "!translate How much wood could a woodchuck
 [To English]        : <b>What kind of tree can turn into a tree or wood tree without wood?</b>
 [Path]              : <b>English -> Xhosa -> Uzbek -> Shona -> English</b>
 </pre>
----
-
-# Requirements
-* googletrans
-* requests
-* bs4
-* fake_useragent
-
-Install these using `pip install ...`
-
-* TwitchWebsocket
-
-Install this using `pip install git+https://github.com/CubieDev/TwitchWebsocket.git`
-
-This last library is my own [TwitchWebsocket](https://github.com/CubieDev/TwitchWebsocket) wrapper, which makes making a Twitch chat bot a lot easier.
-This repository can be seen as an implementation using this wrapper.
 
 ---
 
@@ -87,6 +71,16 @@ This bot is controlled by a settings.txt file, which looks like:
 *Note that the example OAuth token is not an actual token, but merely a generated string to give an indication what it might look like.*
 
 I got my real OAuth token from https://twitchapps.com/tmi/.
+
+---
+
+# Requirements
+* [Python 3.6+](https://www.python.org/downloads/)
+* [Module requirements](requirements.txt)<br>
+Install these modules using `pip install -r requirements.txt`
+
+Among these modules is my own [TwitchWebsocket](https://github.com/CubieDev/TwitchWebsocket) wrapper, which makes making a Twitch chat bot a lot easier.
+This repository can be seen as an implementation using this wrapper.
 
 ---
 
