@@ -7,6 +7,8 @@ When the bot has started, it will start listening to chat messages in the channe
 
 The bot will translate the remainder from the initial language (does not need to be English) to all languages that were randomly picked, in a chain. At the end, it will translate the sentence back to English, and it will be printed out in the Twitch chat.
 
+---
+
 # Example
 
 The console when sending the message "!translate How much wood could a woodchuck chuck, if a woodchuck could chuck wood?" in Twitch chat 3 times:
