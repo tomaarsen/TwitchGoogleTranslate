@@ -68,7 +68,7 @@ This bot is controlled by a settings.txt file, which looks like:
 | UseProxies           | Whether Proxies should be used                                    | False (recommended) |
 | Cooldown             | How many seconds inbetween messages that the bot should translate | 10 |
 | AmountOfTranslations | How many languages the bot should choose to translate through     | 3 (Recommended) |
-| Languages            | The chain of languages which will be translated through. If this list has languages, these languages will always be used in the listed order. If this list is empty, an amount of random languages will be chosen. | ["Hawaiian"] (recommended) |
+| Languages            | The chain of languages which will be translated through. If this list has languages, these languages will always be used in the listed order. If this list is empty, an amount of random languages will be chosen. | \["Hawaiian"\] (recommended) |
 
 *Note that the example OAuth token is not an actual token, but merely a generated string to give an indication what it might look like.*
 
